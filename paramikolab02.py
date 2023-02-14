@@ -2,6 +2,7 @@ import time
 import paramiko
 import getpass
 
+
 USERNAME = 'LINUX_USER'
 devices_ip = ["172.31.108.4", "172.31.108.5", "172.31.108.6"]
 client = paramiko.SSHClient()
@@ -64,17 +65,14 @@ def configure_r3(ip):
         send_command(ssh, 'ip nat inside')
         send_command(ssh, 'exit')
         for ip_add in devices_ip:
-            # send_command(ssh, 'access-list 1 permit tcp host 172.31.108.0 0.0.0.15 host {} eq telnet'.format(ip_add))
-            # send_command(ssh, 'access-list 1 permit tcp host 172.31.108.0 0.0.0.15 host {} eq ssh'.format(ip_add))
             send_command(ssh, 'access-list 100 deny tcp any host {} eq telnet'.format(ip_add))
             send_command(ssh, 'access-list 100 deny tcp any host {} eq 22'.format(ip_add))
         send_command(ssh, 'access-list 100 permit ip any any')
         send_command(ssh, 'access-list 100 permit ip any any')
-        # send_command(ssh, 'access-list 1 permit any')
         send_command(ssh, 'ip nat inside source list 100 interface g0/2 overload')
         
-#password = getpass.getpass()
-password = 'hello'
-# configure_r1(devices_ip[0])
-# configure_r2(devices_ip[1])
+password = getpass.getpass()
+
+configure_r1(devices_ip[0])
+configure_r2(devices_ip[1])
 configure_r3(devices_ip[2])
