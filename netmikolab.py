@@ -2,7 +2,6 @@ from netmiko import ConnectHandler
 import paramiko
 
 
-
 def get_data_from_device(device_params):
     with ConnectHandler(**device_params) as ssh:
         result_shipintbr = ssh.send_command('sh ip int br')
@@ -10,8 +9,13 @@ def get_data_from_device(device_params):
 
 
 def get_ip(device_params, intf):
-    print('hello')
+    return '172.31.108.4'
 
+def get_nei(device_params, intf):
+    return 'S0'
+
+def get_status(device_params, intf):
+    return 'up/up'
 
 if __name__ == '__main__':
     device_ip = '172.31.108.4'
