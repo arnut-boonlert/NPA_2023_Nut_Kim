@@ -72,7 +72,6 @@ def configure_r3(ip):
         send_command(ssh, 'ip nat inside source list 100 interface g0/2 overload')
         
 password = getpass.getpass()
-
 configure_r1(devices_ip[0])
 configure_r2(devices_ip[1])
 configure_r3(devices_ip[2])
