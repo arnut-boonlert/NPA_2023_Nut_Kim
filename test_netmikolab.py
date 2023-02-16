@@ -14,6 +14,9 @@ def test_ip():
     assert get_ip(devices_params[0], 'G0/1') == '172.31.108.17'
     assert get_ip(devices_params[0], 'G0/2') == '172.31.108.33'
     assert get_ip(devices_params[0], 'G0/3') == 'unassigned'
+
+
+    
     # assert get_mask(devices_params[0], 'G0/0') == '/28'
     # assert get_desc(devices_params[0], 'G0/0') == 'Connect to G0/2 of S0'
 
