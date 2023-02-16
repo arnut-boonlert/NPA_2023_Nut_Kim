@@ -5,15 +5,21 @@ username = 'admin'
 password = 'cisco'
 devices_params = []
 for i in range(len(devices_ip)):
-    device_params = {'device_type': 'cisco_ios', 'ip': devices_ip[i], 'username': username, 'password': password}
+    device_params = {'device_type': 'cisco_ios', 
+    'ip': devices_ip[i], 
+    'username': username, 
+    'password': password, 
+    'global_delay_factor': 0.1}
+    
     devices_params.append(device_params)
-print(devices_params[1])
 
 def test_ip():
     assert get_ip(devices_params[0], 'G0/0') == '172.31.108.4'
-    # assert get_ip(devices_params[0], 'G0/1') == '172.31.108.17'
-    # assert get_ip(devices_params[0], 'G0/2') == '172.31.108.33'
-    # assert get_ip(devices_params[0], 'G0/3') == 'unassigned'
+    assert get_ip(devices_params[0], 'G0/1') == '172.31.108.17'
+    assert get_ip(devices_params[0], 'G0/2') == '172.31.108.33'
+    assert get_ip(devices_params[0], 'G0/3') == 'unassigned'
+
+
     print("All passed")
 
 if __name__ == '__main__':
@@ -21,8 +27,8 @@ if __name__ == '__main__':
 
 
 
-
-
+    
+    
 
 
 

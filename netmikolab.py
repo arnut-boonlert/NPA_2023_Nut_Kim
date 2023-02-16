@@ -20,9 +20,15 @@ if __name__ == '__main__':
     password = 'cisco'
     devices_params = []
     for i in range(len(devices_ip)):
-        device_params = {'device_type': 'cisco_ios', 'ip': devices_ip[i], 'username': username, 'password': password}
+        device_params = {'device_type': 'cisco_ios', 
+        'ip': devices_ip[i], 
+        'username': username, 
+        'password': password, 
+        'global_delay_factor': 0.1}
+        
         devices_params.append(device_params)
     print(get_ip(devices_params[0], 'G0/0'))
+
             # print(get_ip(devices_params[i], 'G0/1'))
             # print(get_ip(devices_params[i], 'G0/2'))
             # print(get_ip(devices_params[i], 'G0/3'))
