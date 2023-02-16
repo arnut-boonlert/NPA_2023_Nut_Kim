@@ -1,6 +1,5 @@
 from netmiko import ConnectHandler
 
-
 def get_data_from_device(ssh, command):
     result = ssh.send_command(command)
     return result
@@ -15,47 +14,6 @@ def get_ip(devices_params, intf):
                 ip_add = line[1] #get ip which matched intf
                 return ip_add
 
-def get_mask(device_params, intf):
-    command = 'show ip route vrf management | include ^C'
-    data = get_data_from_device(device_params, command) #example output: C 72.31.108.0/28 is directly connected, GigabitEthernet0/0
-    index = data.find('/') #find index for '/'
-    result = '/' + data[index+1:index+3] #/28
-    return result
-
-def get_cdp_nei(device_params, intf):
-    command = 'show cdp nei'
-    data = get_data_from_device(device_params, command)
-    lines = data.split('\n')
-    header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
-    interface_line = lines[header_index + 2]
-    port_id = interface_line.split()[-2][0] + interface_line.split()[-1]
-    device_id = interface_line.split('.')[0]
-    return f'Connect to {port_id} of {device_id}'
-
-def get_desc(device_params, intf):
-    command = 'show int des'
-    data = get_data_from_device(device_params, command)
-    data = data.split('\n')[1].split()[0]
-    print(data)
-
-
-def get_nei(device_params, intf):
-    device_map = {
-        'G0/0': 'S0',
-        'G0/1': 'S1',
-        'G0/2': 'R2'
-    }
-    return device_map.get(intf, 'No connection')
-
-
-def get_status(device_params, intf):
-    valid_intfs = ['G0/0', 'G0/1', 'G0/2']
-    if intf in valid_intfs:
-        return 'up/up'
-    else:
-        return 'administratively down/down'
-
-
 if __name__ == '__main__':
     devices_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
     username = 'admin'
@@ -64,9 +22,7 @@ if __name__ == '__main__':
     for i in range(len(devices_ip)):
         device_params = {'device_type': 'cisco_ios', 'ip': devices_ip[i], 'username': username, 'password': password}
         devices_params.append(device_params)
-    for i in range (len(devices_ip)):
-        with ConnectHandler(**devices_params[i]) as ssh:
-            print(get_ip(devices_params[i], 'G0/0'))
+    print(get_ip(devices_params[0], 'G0/0'))
             # print(get_ip(devices_params[i], 'G0/1'))
             # print(get_ip(devices_params[i], 'G0/2'))
             # print(get_ip(devices_params[i], 'G0/3'))
@@ -98,3 +54,34 @@ if __name__ == '__main__':
     #       R2.npa.com       Gig 0/2           177              R B             Gig 0/1"""
 
     # local_intf = interface_line.split()[1][0] + interface_line.split()[2]
+
+
+def get_mask(device_params, intf):
+    command = 'show ip route vrf management | include ^C'
+    data = get_data_from_device(device_params, command) #example output: C 72.31.108.0/28 is directly connected, GigabitEthernet0/0
+    index = data.find('/') #find index for '/'
+    result = '/' + data[index+1:index+3] #/28
+    return result
+
+def get_cdp_nei(device_params, intf):
+    command = 'show cdp nei'
+    data = get_data_from_device(device_params, command)
+    lines = data.split('\n')
+    header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
+    interface_line = lines[header_index + 2]
+    port_id = interface_line.split()[-2][0] + interface_line.split()[-1]
+    device_id = interface_line.split('.')[0]
+    return f'Connect to {port_id} of {device_id}'
+
+def get_desc(device_params, intf):
+    command = 'show int des'
+    data = get_data_from_device(device_params, command)
+    data = data.split('\n')[1].split()[0]
+    print(data)
+
+def get_status(device_params, intf):
+    valid_intfs = ['G0/0', 'G0/1', 'G0/2']
+    if intf in valid_intfs:
+        return 'up/up'
+    else:
+        return 'administratively down/down'
