@@ -1,20 +1,19 @@
 from netmiko import ConnectHandler
-import paramiko
 
 
-def get_data_from_device(device_params, command):
-    with ConnectHandler(**device_params) as ssh:
-        result = ssh.send_command(command)
-        return result
+def get_data_from_device(ssh, command):
+    result = ssh.send_command(command)
+    return result
 
-def get_ip(device_params, intf):
-    command = 'sh ip int br'
-    data = get_data_from_device(device_params, command) 
-    for lines in data.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
-        line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
-        if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
-            ip_add = line[1] #get ip which matched intf
-            return ip_add
+def get_ip(devices_params, intf):
+    with ConnectHandler(**devices_params) as ssh:
+        command = 'sh ip int br'
+        data = get_data_from_device(ssh, command) 
+        for lines in data.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
+            line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
+            if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
+                ip_add = line[1] #get ip which matched intf
+                return ip_add
 
 def get_mask(device_params, intf):
     command = 'show ip route vrf management | include ^C'
@@ -58,15 +57,19 @@ def get_status(device_params, intf):
 
 
 if __name__ == '__main__':
-    device_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
+    devices_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
     username = 'admin'
     password = 'cisco'
     devices_params = []
-    for i in range(len(device_ip)):
-        device_params = {'device_type': 'cisco_ios', 'ip': device_ip[i], 'username': username, 'password': password}
+    for i in range(len(devices_ip)):
+        device_params = {'device_type': 'cisco_ios', 'ip': devices_ip[i], 'username': username, 'password': password}
         devices_params.append(device_params)
-    # print(get_ip(device_params, 'G0/0'))
-    get_ip(devices_params[0], 'G0/0')
+    for i in range (len(devices_ip)):
+        with ConnectHandler(**devices_params[i]) as ssh:
+            print(get_ip(devices_params[i], 'G0/0'))
+            # print(get_ip(devices_params[i], 'G0/1'))
+            # print(get_ip(devices_params[i], 'G0/2'))
+            # print(get_ip(devices_params[i], 'G0/3'))
 
 
 
