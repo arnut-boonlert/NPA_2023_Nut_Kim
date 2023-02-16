@@ -7,15 +7,14 @@ def get_data_from_device(device_params, command):
         result = ssh.send_command(command)
         return result
 
-
 def get_ip(device_params, intf):
     command = 'sh ip int br'
-    data = get_data_from_device(device_params, command)
-    result = data.strip().split('\n')
-    for line in result[1:]:
-        words = line.split()
-        if words[0][0] == intf[0] and words[0][-3:] == intf[1:]:
-            return words[1]
+    data = get_data_from_device(device_params, command) 
+    for lines in data.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
+        line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
+        if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
+            ip_add = line[1] #get ip which matched intf
+            return ip_add
 
 def get_mask(device_params, intf):
     command = 'show ip route vrf management | include ^C'
@@ -24,32 +23,22 @@ def get_mask(device_params, intf):
     result = '/' + data[index+1:index+3] #/28
     return result
 
-def get_desc(device_params, intf):
+def get_cdp_nei(device_params, intf):
     command = 'show cdp nei'
     data = get_data_from_device(device_params, command)
-    # data = """Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
-    #       S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,
-    #       D - Remote, C - CVTA, M - Two-port Mac Relay
-
-    #       Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
-    #       S1.npa.com       Gig 0/1           133              S I             Gig 0/2
-    #       S0.npa.com       Gig 0/0           135              S I             Gig 0/2
-    #       R2.npa.com       Gig 0/2           177              R B             Gig 0/1"""
-
     lines = data.split('\n')
     header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
-    interface_line = lines[header_index + 1]
-    interface_name = interface_line.split()[-1]
+    interface_line = lines[header_index + 2]
+    port_id = interface_line.split()[-2][0] + interface_line.split()[-1]
+    device_id = interface_line.split('.')[0]
+    return f'Connect to {port_id} of {device_id}'
 
-    print(interface_name)
+def get_desc(device_params, intf):
+    command = 'show int des'
+    data = get_data_from_device(device_params, command)
+    data = data.split('\n')[1].split()[0]
+    print(data)
 
-    # intf_name = data.split(',')[-1]
-    # intf_name = (intf_name[1] + intf_name[-3:])
-    # if intf == intf_name:
-    #     index = data.find('/')
-    #     result = '/' + data[index+1:index+3]
-    #     return result
-    # return ''
 
 def get_nei(device_params, intf):
     device_map = {
@@ -77,7 +66,7 @@ if __name__ == '__main__':
         device_params = {'device_type': 'cisco_ios', 'ip': device_ip[i], 'username': username, 'password': password}
         devices_params.append(device_params)
     # print(get_ip(device_params, 'G0/0'))
-    print(get_desc(devices_params[0], 'G0/0'))
+    get_ip(devices_params[0], 'G0/0')
 
 
 
@@ -92,3 +81,17 @@ if __name__ == '__main__':
 #         result = '/' + data[index+1:index+3]
 #         return result
 #     return ''
+
+
+
+
+# data = """Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+    #       S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,
+    #       D - Remote, C - CVTA, M - Two-port Mac Relay
+
+    #       Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+    #       S1.npa.com       Gig 0/1           133              S I             Gig 0/2
+    #       S0.npa.com       Gig 0/0           135              S I             Gig 0/2
+    #       R2.npa.com       Gig 0/2           177              R B             Gig 0/1"""
+
+    # local_intf = interface_line.split()[1][0] + interface_line.split()[2]
