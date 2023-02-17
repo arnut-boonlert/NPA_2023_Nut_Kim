@@ -7,12 +7,28 @@ def get_data_from_device(ssh, command):
 def get_ip(devices_params, intf):
     with ConnectHandler(**devices_params) as ssh:
         command = 'sh ip int br'
-        data = get_data_from_device(ssh, command) 
-        for lines in data.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
+        result = get_data_from_device(ssh, command) 
+        for lines in result.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
             line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
             if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
                 ip_add = line[1] #get ip which matched intf
                 return ip_add
+
+def get_cdp_nei(devices_params, intf):
+    with ConnectHandler(**devices_params) as ssh:
+        command = 'show cdp nei'
+        result = get_data_from_device(ssh, command)
+        lines = result.strip().split('\n')
+        header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
+        ender_index = lines.index('', lines.index('')+1) #the second one of blank line in result
+        for i in range (header_index+1, ender_index): #start from next line of header_index and stop at ender_index
+            local_intf = lines[i].split()[1][0] + lines[i].split()[2] #Ex: 'Gig 0/0' -> 'G0/0'
+            if intf == local_intf:
+                device_id = lines[i].split('.')[0] #get device id Ex: S0 (from 'S0.npa.com') 
+                port_id = lines[i].split()[-2][0] + lines[i].split()[-1] #get port id Ex: 'Gig 0/2' -> 'G0/2'
+                return f'Connect to {port_id} of {device_id}'
+            elif i == ender_index-1: #if nothing matched
+                return 'Not Use'
 
 if __name__ == '__main__':
     devices_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
@@ -69,21 +85,13 @@ def get_mask(device_params, intf):
     result = '/' + data[index+1:index+3] #/28
     return result
 
-def get_cdp_nei(device_params, intf):
-    command = 'show cdp nei'
-    data = get_data_from_device(device_params, command)
-    lines = data.split('\n')
-    header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
-    interface_line = lines[header_index + 2]
-    port_id = interface_line.split()[-2][0] + interface_line.split()[-1]
-    device_id = interface_line.split('.')[0]
-    return f'Connect to {port_id} of {device_id}'
 
-def get_desc(device_params, intf):
-    command = 'show int des'
-    data = get_data_from_device(device_params, command)
-    data = data.split('\n')[1].split()[0]
-    print(data)
+
+# def get_desc(device_params, intf):
+#     command = 'show int des'
+#     data = get_data_from_device(device_params, command)
+#     data = data.split('\n')[1].split()[0]
+#     print(data)
 
 def get_status(device_params, intf):
     valid_intfs = ['G0/0', 'G0/1', 'G0/2']
