@@ -43,14 +43,26 @@ def test_cabled():
     assert get_cdp_nei(devices_params[1], 'G0/3') == 'Not Use'
     assert get_cdp_nei(devices_params[2], 'G0/0') == 'Connect to G1/0 of S0'
     assert get_cdp_nei(devices_params[2], 'G0/1') == 'Connect to G0/2 of R2'
-    assert get_cdp_nei(devices_params[2], 'G0/2') == 'Connect to G0/2 of R3'
+    assert get_cdp_nei(devices_params[2], 'G0/2') == 'Connect to G0/3 of R3'
     assert get_cdp_nei(devices_params[2], 'G0/3') == 'Not Use'
 
 @pytest.mark.desc
 def test_desc():
     assert get_desc(devices_params[0], 'G0/0') == 'Connect to G0/2 of S0'
+    assert get_desc(devices_params[0], 'G0/1') == 'Connect to G0/2 of S1'
+    assert get_desc(devices_params[0], 'G0/2') == 'Connect to G0/1 of R2'
+    assert get_desc(devices_params[0], 'G0/3') == 'Not Use'
+    assert get_desc(devices_params[1], 'G0/0') == 'Connect to G0/3 of S0'
+    assert get_desc(devices_params[1], 'G0/1') == 'Connect to G0/2 of R1'
+    assert get_desc(devices_params[1], 'G0/2') == 'Connect to G0/1 of R3'
+    assert get_desc(devices_params[1], 'G0/3') == 'Not Use'
+    assert get_desc(devices_params[2], 'G0/0') == 'Connect to G1/0 of S0'
+    assert get_desc(devices_params[2], 'G0/1') == 'Connect to G0/2 of R2'
+    assert get_desc(devices_params[2], 'G0/2') == 'Connect to G0/3 of R3'
+    assert get_desc(devices_params[2], 'G0/3') == 'Not Use'
 
 
 if __name__ == '__main__':
     test_ip()
     test_cabled()
+    test_desc()
