@@ -65,16 +65,19 @@ def get_desc(device_params, intf, skip_get_desc='True'):#let it True because int
 
 def get_status(device_params, intf):
     lines = get_only_desc(device_params, intf)
-    for line in lines:
-        local_intf = line.split()[0][0] + line.split()[0][-3:] #get local_intf Ex: G0/0
-        line = line.split()
-        if intf == local_intf:
-            check_status = line[1] == 'up' and line[2] == 'up' #check status and protocol status
-            if check_status:#if status and protocol is up up
-                status = f'{line[1]} {line[2]}' #Ex: up up
-            else:
-                status = f'{line[1]} {line[2]} {line[3]}'#Ex: admin down down
-    return status
+    for i in range (len(lines)):
+        nvi = re.search(r'(\w+).*', lines[i]).groups()[0]
+        if 'NV' not in nvi:
+            intf_type, intf_num = re.search(r'(\w)\w+(\d+/\d+)', lines[i]).groups()
+            if intf == intf_type + intf_num:
+                desc = re.search(r'\w+\s+\w+\s+\w+\s+([\w\s/]+|down     Not Use)', lines[i]).groups()[0]
+                if 'Connect' not in desc:
+                    status = re.search(r'\w+\s+(\w+\s+\w+).*', lines[i]).groups()[0]
+                    protocol = re.search(r'\w+\s+\w+\s+\w+\s+(\w+).*', lines[i]).groups()[0]
+                else:
+                    status = re.search(r'\w+\s+(\w+).*', lines[i]).groups()[0]
+                    protocol = re.search(r'\w+\s+\w+\s+(\w+).*', lines[i]).groups()[0]
+                return f'{status} {protocol}'
 
 if __name__ == '__main__':
     devices_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
@@ -88,5 +91,5 @@ if __name__ == '__main__':
         'password': password, 
         'global_delay_factor': 0.1}
         devices_params.append(device_params)
-    print(get_desc(devices_params[0], 'G0/3'))
+    print(get_status(devices_params[0], 'G0/3'))
 

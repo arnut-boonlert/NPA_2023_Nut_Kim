@@ -16,14 +16,14 @@ for i in range(len(devices_ip)):
 
 @pytest.mark.ip
 def test_ip():
-    # assert get_ip(devices_params[0], 'G0/0') == '172.31.108.4'
-    # assert get_ip(devices_params[0], 'G0/1') == '172.31.108.17'
-    # assert get_ip(devices_params[0], 'G0/2') == '172.31.108.33'
-    # assert get_ip(devices_params[0], 'G0/3') == 'unassigned'
-    # assert get_ip(devices_params[1], 'G0/0') == '172.31.108.5'
-    # assert get_ip(devices_params[1], 'G0/1') == '172.31.108.34'
-    # assert get_ip(devices_params[1], 'G0/2') == '172.31.108.49'
-    # assert get_ip(devices_params[1], 'G0/3') == 'unassigned'
+    assert get_ip(devices_params[0], 'G0/0') == '172.31.108.4'
+    assert get_ip(devices_params[0], 'G0/1') == '172.31.108.17'
+    assert get_ip(devices_params[0], 'G0/2') == '172.31.108.33'
+    assert get_ip(devices_params[0], 'G0/3') == 'unassigned'
+    assert get_ip(devices_params[1], 'G0/0') == '172.31.108.5'
+    assert get_ip(devices_params[1], 'G0/1') == '172.31.108.34'
+    assert get_ip(devices_params[1], 'G0/2') == '172.31.108.49'
+    assert get_ip(devices_params[1], 'G0/3') == 'unassigned'
     assert get_ip(devices_params[2], 'G0/0') == '172.31.108.6'
     assert get_ip(devices_params[2], 'G0/1') == '172.31.108.50'
     assert get_ip(devices_params[2], 'G0/2') == '192.168.122.243'
