@@ -1,7 +1,6 @@
 import pytest
 from netmikolab import *
 
-
 devices_ip = ['172.31.108.4', '172.31.108.5', '172.31.108.6']
 username = 'admin'
 password = 'cisco'
@@ -61,14 +60,20 @@ def test_desc():
     assert get_desc(devices_params[2], 'G0/2') == 'Connect to G0/3 of R3'
     assert get_desc(devices_params[2], 'G0/3') == 'Not Use'
 
-
 @pytest.mark.status
 def test_status():
     assert get_status(devices_params[0], 'G0/0') == 'up up'
     assert get_status(devices_params[0], 'G0/1') == 'up up'
     assert get_status(devices_params[0], 'G0/1') == 'up up'
     assert get_status(devices_params[0], 'G0/3') == 'admin down down'
-
+    assert get_status(devices_params[1], 'G0/0') == 'up up'
+    assert get_status(devices_params[1], 'G0/1') == 'up up'
+    assert get_status(devices_params[1], 'G0/1') == 'up up'
+    assert get_status(devices_params[1], 'G0/3') == 'admin down down'
+    assert get_status(devices_params[2], 'G0/0') == 'up up'
+    assert get_status(devices_params[2], 'G0/1') == 'up up'
+    assert get_status(devices_params[2], 'G0/1') == 'up up'
+    assert get_status(devices_params[2], 'G0/3') == 'admin down down'
 
 if __name__ == '__main__':
     test_ip()

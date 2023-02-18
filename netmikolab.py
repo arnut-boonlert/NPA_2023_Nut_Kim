@@ -1,8 +1,9 @@
 from netmiko import ConnectHandler
 
-def send_command(ssh, commands):
-    for command in commands:
-        ssh.send_command(command, expect_string=r"\S+#")
+def send_command(device_params, commands):
+    with ConnectHandler(**device_params) as ssh:
+        for command in commands:
+            ssh.send_command(command, expect_string=r"\S+#")
 
 
 def get_data_from_device(device_params, command):
@@ -12,8 +13,7 @@ def get_data_from_device(device_params, command):
 
 def get_ip(device_params, intf):
     command = 'sh ip int br'
-    with ConnectHandler(**device_params) as ssh:
-        result = get_data_from_device(ssh, command) 
+    result = get_data_from_device(device_params, command) 
     for lines in result.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
         line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
         if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
@@ -22,8 +22,7 @@ def get_ip(device_params, intf):
 
 def get_cdp_nei(device_params, intf):
     command = 'show cdp nei'
-    with ConnectHandler(**device_params) as ssh:
-        result = get_data_from_device(ssh, command)
+    result = get_data_from_device(device_params, command)
     lines = result.strip().split('\n')
     header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
     ender_index = lines.index('', lines.index('')+1) #the second one of blank line in result
@@ -37,9 +36,8 @@ def get_cdp_nei(device_params, intf):
             return 'Not Use'
 
 def set_desc(device_params, intf):
-    with ConnectHandler(**device_params) as ssh:
-        commands = ['conf t', f'int {intf}', f'des {get_cdp_nei(device_params, intf)}', 'end']
-    send_command(ssh, commands)
+    commands = ['conf t', f'int {intf}', f'des {get_cdp_nei(device_params, intf)}', 'end']
+    send_command(device_params, commands)
 
 def get_only_desc(device_params, intf):
     command = 'show int des'
@@ -48,8 +46,9 @@ def get_only_desc(device_params, intf):
     lines.pop(0)
     return lines
 
-def get_desc(device_params, intf):
-    set_desc(device_params, intf)
+def get_desc(device_params, intf, skip_get_desc='True'):#let it True because int des has configured
+    if not skip_get_desc:
+        set_desc(device_params, intf)
     lines = get_only_desc(device_params, intf)
     for line in lines:
         local_intf = line.split()[0][0] + line.split()[0][-3:] #get local_intf Ex: G0/0
@@ -91,7 +90,5 @@ if __name__ == '__main__':
         'username': username, 
         'password': password, 
         'global_delay_factor': 0.1}
-        
         devices_params.append(device_params)
-    print(get_status(devices_params[0], 'G0/3'))
 
