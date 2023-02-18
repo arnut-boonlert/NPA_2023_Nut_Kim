@@ -51,20 +51,16 @@ def get_desc(device_params, intf, skip_get_desc='True'):#let it True because int
     if not skip_get_desc:
         set_desc(device_params, intf)
     lines = get_only_desc(device_params, intf)
-    for line in lines:
-        local_intf = line.split()[0][0] + line.split()[0][-3:] #get local_intf Ex: G0/0
-        if intf == local_intf:
-            line = line.split()
-            check_status = line[1] == 'up' and line[2] == 'up' #check status and protocol status
-            if check_status: #if status and protocol is up up
-                words = line.index('Connect') #find 'Connect' in list
-            else:
-                words = line.index('Not') #find 'Not' in list
-            word = ''
-            for i in range (words, len(line)): #start with index of words 
-                word = f'{word} {line[i]}' 
-                word = word.strip() #the result is description Ex: Connect to G0/2 of S0
-    return word
+    for i in range (len(lines)):
+        nvi = re.search(r'(\w+).*', lines[i]).groups()[0]
+        if 'NV' not in nvi:
+            intf_type, intf_num = re.search(r'(\w)\w+(\d+/\d+)', lines[i]).groups()
+            if intf == intf_type + intf_num:
+                desc = re.search(r'\w+\s+\w+\s+\w+\s+([\w\s/]+|down     Not Use)', lines[i]).groups()[0]
+                if 'Connect' not in desc:
+                    return 'Not Use'
+                else:
+                    return desc
 
 
 def get_status(device_params, intf):
@@ -92,5 +88,5 @@ if __name__ == '__main__':
         'password': password, 
         'global_delay_factor': 0.1}
         devices_params.append(device_params)
-    print(get_cdp_nei(devices_params[2], 'G0/0'))
+    print(get_desc(devices_params[0], 'G0/3'))
 
