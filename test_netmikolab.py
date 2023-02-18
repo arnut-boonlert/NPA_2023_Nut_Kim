@@ -62,6 +62,14 @@ def test_desc():
     assert get_desc(devices_params[2], 'G0/3') == 'Not Use'
 
 
+@pytest.mark.status
+def test_status():
+    assert get_status(devices_params[0], 'G0/0') == 'up up'
+    assert get_status(devices_params[0], 'G0/1') == 'up up'
+    assert get_status(devices_params[0], 'G0/1') == 'up up'
+    assert get_status(devices_params[0], 'G0/3') == 'admin down down'
+
+
 if __name__ == '__main__':
     test_ip()
     test_cabled()
