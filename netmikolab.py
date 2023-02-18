@@ -1,4 +1,5 @@
 from netmiko import ConnectHandler
+import re
 
 def send_command(device_params, commands):
     with ConnectHandler(**device_params) as ssh:
@@ -13,12 +14,12 @@ def get_data_from_device(device_params, command):
 
 def get_ip(device_params, intf):
     command = 'sh ip int br'
-    result = get_data_from_device(device_params, command) 
-    for lines in result.strip().split('\n'): #Ex: GigabitEthernet0/0    172.31.108.4
-        line = lines.split() #Ex: ['GigabitEthernet0/0', '172.31.108.4']
-        if intf in line[0][0] + line[0][-3:]: #Ex: line[0][0]='G' and line[0][-3:]='0/0'
-            ip_add = line[1] #get ip which matched intf
-            return ip_add
+    result = get_data_from_device(device_params, command)
+    lines = result.strip().split('\n')
+    for line in lines[1:]:
+        intf_type, intf_num, intf_ip = re.search(r'(\w)\w+(\d+/\d+)\s+(\d+\.\d+\.\d+\.\d+|unassigned).*', line).groups()
+        if intf_type == intf[0] and intf_num == intf[1:]:
+            return intf_ip
 
 def get_cdp_nei(device_params, intf):
     command = 'show cdp nei'
@@ -27,10 +28,10 @@ def get_cdp_nei(device_params, intf):
     header_index = lines.index('Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID')
     ender_index = lines.index('', lines.index('')+1) #the second one of blank line in result
     for i in range (header_index+1, ender_index): #start from next line of header_index and stop at ender_index
-        local_intf = lines[i].split()[1][0] + lines[i].split()[2] #Ex: 'Gig 0/0' -> 'G0/0'
-        if intf == local_intf:
-            device_id = lines[i].split('.')[0] #get device id Ex: S0 (from 'S0.npa.com') 
-            port_id = lines[i].split()[-2][0] + lines[i].split()[-1] #get port id Ex: 'Gig 0/2' -> 'G0/2'
+        device_id, intf_type, intf_num, port_id_type, port_id_num = re.search(r'(\w+).\w+.\w+\s+(\w).*(\d+/\d+).*\s(\w).*(\d+/\d+).*', lines[i]).groups()
+        local_intf = intf_type + intf_num #ex: G + 0/0
+        port_id = port_id_type + port_id_num #Ex: G + 0/0
+        if local_intf == intf:
             return f'Connect to {port_id} of {device_id}'
         elif i == ender_index-1: #if nothing matched
             return 'Not Use'
@@ -91,4 +92,5 @@ if __name__ == '__main__':
         'password': password, 
         'global_delay_factor': 0.1}
         devices_params.append(device_params)
+    print(get_cdp_nei(devices_params[2], 'G0/0'))
 
