@@ -42,7 +42,7 @@ def test_cabled():
     assert get_cdp_nei(devices_params[1], 'G0/3') == 'Not Use'
     assert get_cdp_nei(devices_params[2], 'G0/0') == 'Connect to G1/0 of S0'
     assert get_cdp_nei(devices_params[2], 'G0/1') == 'Connect to G0/2 of R2'
-    # assert get_cdp_nei(devices_params[2], 'G0/2') == 'Connect to G0/3 of R3'
+    assert get_cdp_nei(devices_params[2], 'G0/2') == 'Connect to G0/3 of R3'
     assert get_cdp_nei(devices_params[2], 'G0/3') == 'Not Use'
 
 @pytest.mark.desc
