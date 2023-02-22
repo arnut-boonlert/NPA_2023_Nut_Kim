@@ -26,7 +26,7 @@ def test_ip():
     assert get_ip(devices_params[1], 'G0/3') == 'unassigned'
     assert get_ip(devices_params[2], 'G0/0') == '172.31.108.6'
     assert get_ip(devices_params[2], 'G0/1') == '172.31.108.50'
-    assert get_ip(devices_params[2], 'G0/2') == '192.168.122.112'
+    assert get_ip(devices_params[2], 'G0/2') == '192.168.122.243'
     assert get_ip(devices_params[2], 'G0/3') == 'unassigned'
     print("All passed")
 
